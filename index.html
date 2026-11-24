@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>myBVK – Prototyp Login v2 (E-Mail zuerst)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#004899;--blue-dark:#003a7a;--yellow:#ffc40a;--text:#675e54;--grey:#f2f2f2;--grey2:#e3e1de;--muted:#8a8178;--error:#b3261e;--ok:#2e7d32;
+--sans:"Avenir LT Pro","Avenir Next","Avenir","Nunito Sans","Segoe UI",Helvetica,Arial,sans-serif;--serif:"PT Serif",Georgia,serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+h1,h2,h3,h4{color:var(--text);font-weight:500;margin:0 0 .6em;line-height:1.2}
+i.acc{font-family:var(--serif);font-weight:400;color:var(--blue)}
+.container{max-width:1140px;margin:0 auto;padding:0 20px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media(max-width:900px){.row{grid-template-columns:1fr}}
+/* Prototyp-Steuerung */
+.proto{background:#2b2724;color:#f2efe9;font-size:14px}
+.proto .container{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding-top:10px;padding-bottom:10px}
+.proto strong{color:var(--yellow);font-weight:500;margin-right:4px}
+.proto .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.proto button{font:inherit;font-size:13px;border:1px solid #6b635b;background:transparent;color:#f2efe9;border-radius:14px;padding:3px 11px;cursor:pointer}
+.proto button:hover{border-color:var(--yellow)}
+.proto button[aria-pressed="true"]{background:var(--yellow);border-color:var(--yellow);color:#2b2724}
+.proto label{display:flex;gap:6px;align-items:center;cursor:pointer}
+/* Header */
+.header{border-bottom:1px solid var(--grey2)}
+.header .container{display:flex;align-items:center;justify-content:space-between;height:96px}
+.logo{display:block;width:110px;height:auto}
+.header .crumb{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:15px}
+/* Inhalt */
+main{padding:48px 0 64px}
+.lead{font-size:30px;margin-bottom:28px}
+.notice{display:flex;gap:14px;align-items:flex-start;background:#fff8e0;border:1px solid #f3dc8a;padding:16px 18px;margin-bottom:28px}
+.notice svg{flex:0 0 26px;height:26px}
+.notice p{margin:0}
+.tcabox{background:var(--grey);padding:28px 30px;margin-bottom:22px}
+.tcabox h4{font-size:22px;color:var(--blue);margin-bottom:8px}
+.tcabox p{margin:0 0 18px}
+.tcabox__buttons{display:flex;flex-wrap:wrap;gap:12px}
+.btn{font:inherit;font-weight:500;font-size:16px;display:inline-flex;align-items:center;gap:8px;justify-content:center;padding:11px 22px;border-radius:4px;border:1px solid var(--blue);cursor:pointer;text-decoration:none;line-height:1.2}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-secondary{background:#fff;color:var(--blue)}
+.btn-secondary:hover{background:#e8eef7}
+.btn-link{background:none;border:none;color:var(--blue);padding:11px 4px;text-decoration:underline}
+.btn svg{width:20px;height:20px}
+.help{margin-top:6px}
+.help strong{font-weight:500}
+.side h2{font-size:26px}
+.side p{margin:0 0 1em}
+.badge{display:inline-block;font-size:13px;font-weight:500;background:var(--yellow);color:#3d2f00;padding:2px 10px;border-radius:12px;margin-bottom:10px}
+.badge.grey{background:var(--grey2);color:var(--text)}
+/* Flow-Karte */
+.card{background:var(--grey);padding:32px 34px}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.steps span{flex:1;height:4px;background:var(--grey2);border-radius:2px}
+.steps span.on{background:var(--blue)}
+.stepinfo{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:15px;margin-bottom:6px}
+.card h3{font-size:26px;margin-bottom:10px}
+.card p{margin:0 0 16px}
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:500;margin-bottom:6px}
+.field input{width:100%;font:inherit;padding:11px 12px;border:1px solid #bdb6ae;border-radius:4px;background:#fff;color:var(--text)}
+.field input:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue)}
+.field .hint{font-size:14px;color:var(--muted);margin-top:4px}
+.field .err{font-size:14px;color:var(--error);margin-top:4px;display:none}
+.field.invalid input{border-color:var(--error)}
+.field.invalid .err{display:block}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px}
+.list{margin:0 0 18px;padding:0;list-style:none}
+.list li{display:flex;gap:12px;margin-bottom:12px}
+.list .num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--yellow);color:#3d2f00;font-weight:500;display:flex;align-items:center;justify-content:center}
+.ok-icon{width:64px;height:64px;border-radius:50%;background:#e3f1e4;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.ok-icon svg{width:34px;height:34px}
+.demo{font-size:14px;color:var(--muted);font-style:italic}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;margin:18px 0}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--grey2)}
+/* Erklärbox */
+.explain{border-left:4px solid var(--yellow);background:#fffdf5;padding:16px 18px;margin-top:26px;font-size:15px}
+.explain h5{margin:0 0 6px;font-size:14px;font-weight:500;letter-spacing:.02em;color:#7a5d00}
+.explain p{margin:0 0 6px}
+.explain ul{margin:4px 0 0;padding-left:18px}
+.hide-explain .explain{display:none}
+/* Systemdialog-Simulation */
+.os-backdrop{position:fixed;inset:0;background:rgba(20,18,16,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.os{background:#fbfbfb;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.3);width:min(400px,100%);padding:26px 26px 20px;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:#222;text-align:center}
+.os .os-tag{font-size:12px;color:#777;margin-bottom:12px}
+.os h6{font-size:18px;font-weight:600;margin:0 0 6px;color:#222}
+.os p{font-size:14px;color:#555;margin:0 0 16px}
+.os .fp{width:64px;height:64px;margin:4px auto 14px;border-radius:50%;background:#eaf1fb;display:flex;align-items:center;justify-content:center}
+.os .fp svg{width:38px;height:38px}
+.os .acct{background:#fff;border:1px solid #e3e3e3;border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:16px;text-align:left}
+.os .acct small{display:block;color:#888}
+.os .os-actions{display:flex;gap:10px}
+.os .os-actions button{flex:1;font:inherit;font-size:15px;padding:10px;border-radius:8px;border:1px solid #d0d0d0;background:#fff;cursor:pointer}
+.os .os-actions button.go{background:#1a73e8;border-color:#1a73e8;color:#fff}
+.os.working .fp svg{animation:pulse 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.os.working .fp svg{animation:none}}
+@keyframes pulse{50%{opacity:.35}}
+/* Externe Seite (Simulation) */
+.ext{border:2px dashed #bdb6ae;background:#fff;padding:28px 30px}
+.ext .ext-tag{font-size:13px;color:var(--muted);margin-bottom:8px}
+/* Portal (vereinfacht) */
+.portal-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:26px}
+.portal-head h2{font-size:40px;margin:0}
+.portal-head h2 i{font-family:var(--serif);font-weight:400;color:var(--yellow)}
+.portal-head .meta{font-family:var(--serif);font-style:italic}
+.portal-head .meta i{color:#c79500}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+@media(max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile .ico{aspect-ratio:1/1;background:var(--grey);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;color:var(--muted);font-size:14px}
+.tile h4{text-align:center;margin-top:10px;font-size:18px}
+.value{display:inline-block;background:var(--grey);padding:14px 22px;font-size:30px;font-weight:500;margin:6px 0 18px}
+.flash{background:#e3f1e4;border:1px solid #b9dcbb;color:#24532a;padding:12px 16px;margin-bottom:24px;display:flex;gap:10px;align-items:center}
+.flash svg{flex:0 0 22px;height:22px}
+.flash.info{background:#e8eef7;border-color:#c3d3ea;color:#173a6b}
+.later-note{font-size:15px;color:var(--muted)}
+/* v2: E-Mail zuerst */
+.loginbox{background:var(--grey);padding:30px 32px;margin-bottom:22px}
+.loginbox h4{font-size:24px;color:var(--blue);margin-bottom:8px}
+.loginbox .row-in{display:flex;gap:12px;align-items:flex-start}
+.loginbox .row-in .field{flex:1;margin:0}
+.loginbox .row-in .btn{margin-top:31px}
+@media(max-width:520px){.loginbox .row-in{flex-direction:column}.loginbox .row-in .btn{margin-top:0;width:100%}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;font-size:13px;color:var(--muted)}
+.chips button{font:inherit;font-size:13px;border:1px dashed #b5ada4;background:#fff;color:var(--text);border-radius:14px;padding:2px 10px;cursor:pointer}
+.chips button:hover{border-color:var(--blue);color:var(--blue)}
+.howto{list-style:none;margin:0 0 26px;padding:0;counter-reset:h}
+.howto li{position:relative;padding:0 0 18px 52px;border-left:2px solid var(--grey2);margin-left:17px}
+.howto li:last-child{border-left-color:transparent;padding-bottom:0}
+.howto li .n{position:absolute;left:-18px;top:-2px;width:34px;height:34px;border-radius:50%;background:var(--yellow);color:#3d2f00;font-weight:500;display:flex;align-items:center;justify-content:center}
+.howto li strong{display:block;font-weight:500;color:var(--text)}
+.howto li span{color:var(--text)}
+.whoami{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid var(--grey2);padding:10px 14px;margin-bottom:18px;font-size:15px}
+.whoami button{font:inherit;font-size:14px;background:none;border:none;color:var(--blue);text-decoration:underline;cursor:pointer;padding:0}
+.btn.busy{opacity:.7;pointer-events:none}
+.paths{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 20px}
+.paths div{background:#fff;border:1px solid var(--grey2);padding:12px 14px;font-size:15px}
+.paths div strong{font-weight:500;display:block;color:var(--blue)}
+/* Footer */
+footer{background:var(--grey);padding:40px 0;font-size:15px}
+footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px}
+@media(max-width:800px){footer .cols{grid-template-columns:1fr 1fr}}
+footer h6{font-size:13px;letter-spacing:.06em;margin:0 0 8px;font-weight:500;color:var(--text)}
+footer a{display:block;white-space:nowrap;color:var(--text);text-decoration:none;margin-bottom:4px}
+footer a:before{content:"→ ";color:var(--yellow)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="proto" role="region" aria-label="Prototyp-Steuerung">
+  <div class="container">
+    <strong>Prototyp</strong>
+    <div class="grp" aria-label="Phase">
+      <span>Phase:</span>
+      <button type="button" data-phase="2027" aria-pressed="true">2027 – Übergang</button>
+      <button type="button" data-phase="2028" aria-pressed="false">ab 2028</button>
+    </div>
+    <div class="grp">
+      <span>Demo-Adressen im Login-Feld:</span>
+      <span style="color:#d8d2c8">anton.test1@… = hat Passkey · maria.muster@… = noch SwissID · andere = unbekannt</span>
+      <button type="button" id="resetDemo">Demo zurücksetzen</button>
+    </div>
+    <div class="grp">
+      <label><input type="checkbox" id="optMandatory"> Umstellung zwingend</label>
+      <label><input type="checkbox" id="optDeeplink"> Einstieg über Direktlink</label>
+      <label><input type="checkbox" id="optExplain" checked> Erklärungen</label>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="container">
+    <a href="#" id="homeLink" aria-label="myBVK Start"><svg class="logo" role="img" aria-label="BVK" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324.1 118.3" fill="#004899"><path d="M 18.10,44.14 L 18.10,44.14 C 18.10,20.97 18.10,16.62 17.72,11.94 C 17.38,6.87 15.91,4.34 10.12,3.25 C 8.69,2.87 5.40,2.87 2.87,2.87 C 1.05,2.87 0,2.53 0,1.43 C 0,0.34 1.43,0 3.96,0 C 13.37,0 24.60,0.71 28.23,0.71 C 36.92,0.71 44.18,0 49.96,0 C 82.58,0 88.36,14.81 88.36,22.79 C 88.36,35.45 79.67,42.67 69.88,49.54 C 84.73,53.55 102.50,64.40 102.50,82.12 C 102.50,98.41 87.64,115.42 54.68,115.42 C 52.49,115.42 47.43,115.04 42.36,114.67 C 36.92,114.67 31.48,114.33 28.95,114.33 C 26.79,114.33 22.79,114.33 18.44,114.67 C 14.47,114.67 9.75,114.67 6.16,114.67 C 3.96,114.67 2.87,114.33 2.87,113.23 C 2.87,112.51 3.25,112.13 5.40,112.13 C 8.31,112.13 10.50,111.79 11.94,111.42 C 15.57,110.70 16.66,107.45 17.38,103.10 C 18.10,96.94 18.10,84.66 18.10,70.90 L 18.10,44.14 Z M 39.45,46.67 L 39.45,46.67 C 39.45,47.73 40.17,48.11 40.93,48.49 C 42.36,48.83 45.27,48.83 49.24,48.83 C 55.02,48.83 59.03,48.11 62.28,45.95 C 66.63,42.67 69.54,37.26 69.54,29.66 C 69.54,19.54 64.47,6.16 47.09,6.16 C 44.52,6.50 43.08,6.16 41.27,6.50 C 39.83,6.87 39.45,7.59 39.45,9.03 L 39.45,46.67 Z M 49.62,55.33 L 49.62,55.33 C 47.81,55.33 43.46,54.99 40.55,54.99 C 39.83,54.99 39.45,55.33 39.45,56.08 L 39.45,92.25 C 39.45,102.00 40.17,104.54 45.99,106.73 C 50.68,108.17 54.68,108.17 59.03,107.82 C 67.35,107.45 82.20,99.85 82.20,85.37 C 82.58,68.74 69.16,56.42 49.62,55.33 L 49.62,55.33 Z"/><path d="M 161.87,87.91 L 161.87,87.91 C 164.40,94.41 170.91,86.43 172.00,85.37 C 172.72,83.90 173.82,83.56 174.53,83.90 C 175.63,84.28 173.44,88.62 172.00,91.50 L 162.25,112.13 C 160.06,116.48 159.00,118.29 157.19,118.29 C 155.71,118.29 154.65,116.82 152.84,113.23 C 148.49,104.91 119.92,43.04 108.35,19.88 C 101.48,6.16 96.41,4.34 92.82,3.25 C 89.91,2.87 87.38,2.87 85.22,2.87 C 83.79,2.87 82.69,2.53 82.69,1.43 C 82.69,0.34 84.51,0 91.01,0 C 97.51,0 110.55,0 124.98,0.34 C 127.89,0.71 130.05,0.71 130.05,1.43 C 130.05,2.53 129.33,2.87 127.52,2.87 C 126.46,3.25 125.36,4.68 126.08,6.50 L 160.44,84.66 L 161.87,87.91 Z"/><path d="M 220.49,50.68 L 220.49,50.68 L 221.59,50.68 C 227.41,45.24 252.85,22.45 257.95,17.38 C 263.05,12.32 267.02,8.69 267.02,6.16 C 267.02,4.34 266.30,3.25 264.49,2.91 C 263.05,2.53 262.29,2.53 262.29,1.43 C 262.29,0.34 263.05,0 265.20,0 C 268.83,0 278.66,0.71 283.76,0.71 C 289.20,0.71 299.03,0 304.47,0 C 306.29,0 307.76,0.34 307.76,1.43 C 307.76,2.53 306.67,2.91 304.85,2.91 C 302.28,2.91 297.94,3.62 294.65,4.34 C 288.83,6.50 283.04,9.41 275.03,15.91 C 269.59,20.63 243.40,43.08 237.24,48.86 C 243.77,55.74 277.94,87.98 284.86,93.39 C 292.83,99.93 300.85,106.80 310.63,110.05 C 316.11,111.87 319.74,112.25 321.94,112.25 C 322.99,112.25 324.09,112.59 324.09,113.31 C 324.09,114.40 323.37,114.78 319.74,114.78 L 304.10,114.78 C 298.65,114.78 295.74,114.78 291.74,114.78 C 282.29,113.68 277.22,110.43 269.59,104.61 C 261.58,98.83 227.41,63.72 223.40,59.37 L 221.59,57.18 L 220.49,57.18 L 220.49,70.94 C 220.49,84.69 220.49,97.02 221.25,103.55 C 221.59,107.52 223.06,111.15 227.41,111.49 C 229.94,111.87 233.95,112.25 236.48,112.25 C 237.95,112.25 238.67,112.59 238.67,113.31 C 238.67,114.40 237.24,114.78 235.42,114.78 C 225.22,114.78 213.95,114.40 209.61,114.40 C 205.22,114.40 194.34,114.78 187.04,114.78 C 184.89,114.78 183.42,114.40 183.42,113.31 C 183.42,112.59 184.17,112.25 186.33,112.25 C 189.24,112.25 191.43,111.87 192.86,111.49 C 196.53,111.15 197.59,107.52 198.34,103.18 C 199.06,97.02 199.06,84.69 199.06,70.94 L 199.06,44.18 C 199.06,20.97 199.06,16.66 198.68,11.94 C 198.34,6.87 196.87,4.34 191.05,3.25 C 189.61,2.91 186.33,2.91 183.79,2.91 C 181.98,2.91 180.88,2.53 180.88,1.43 C 180.88,0.34 182.32,0 184.89,0 C 194.34,0 205.22,0.71 209.61,0.71 C 213.95,0.71 225.22,0 231.42,0 C 233.95,0 235.04,0.34 235.04,1.43 C 235.04,2.53 233.95,2.91 232.51,2.91 C 230.70,2.91 229.60,2.91 227.41,3.25 C 222.68,3.96 221.25,6.50 220.87,11.94 C 220.49,16.66 220.49,20.97 220.49,44.18 L 220.49,50.68 Z"/></svg></a>
+    <span class="crumb" id="crumb">myBVK Login</span>
+  </div>
+</header>
+
+<main>
+  <div class="container" id="app" aria-live="polite"></div>
+</main>
+
+<footer>
+  <div class="container cols">
+    <div><svg style="width:90px;height:auto" role="img" aria-label="BVK" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324.1 118.3" fill="#004899"><path d="M 18.10,44.14 L 18.10,44.14 C 18.10,20.97 18.10,16.62 17.72,11.94 C 17.38,6.87 15.91,4.34 10.12,3.25 C 8.69,2.87 5.40,2.87 2.87,2.87 C 1.05,2.87 0,2.53 0,1.43 C 0,0.34 1.43,0 3.96,0 C 13.37,0 24.60,0.71 28.23,0.71 C 36.92,0.71 44.18,0 49.96,0 C 82.58,0 88.36,14.81 88.36,22.79 C 88.36,35.45 79.67,42.67 69.88,49.54 C 84.73,53.55 102.50,64.40 102.50,82.12 C 102.50,98.41 87.64,115.42 54.68,115.42 C 52.49,115.42 47.43,115.04 42.36,114.67 C 36.92,114.67 31.48,114.33 28.95,114.33 C 26.79,114.33 22.79,114.33 18.44,114.67 C 14.47,114.67 9.75,114.67 6.16,114.67 C 3.96,114.67 2.87,114.33 2.87,113.23 C 2.87,112.51 3.25,112.13 5.40,112.13 C 8.31,112.13 10.50,111.79 11.94,111.42 C 15.57,110.70 16.66,107.45 17.38,103.10 C 18.10,96.94 18.10,84.66 18.10,70.90 L 18.10,44.14 Z M 39.45,46.67 L 39.45,46.67 C 39.45,47.73 40.17,48.11 40.93,48.49 C 42.36,48.83 45.27,48.83 49.24,48.83 C 55.02,48.83 59.03,48.11 62.28,45.95 C 66.63,42.67 69.54,37.26 69.54,29.66 C 69.54,19.54 64.47,6.16 47.09,6.16 C 44.52,6.50 43.08,6.16 41.27,6.50 C 39.83,6.87 39.45,7.59 39.45,9.03 L 39.45,46.67 Z M 49.62,55.33 L 49.62,55.33 C 47.81,55.33 43.46,54.99 40.55,54.99 C 39.83,54.99 39.45,55.33 39.45,56.08 L 39.45,92.25 C 39.45,102.00 40.17,104.54 45.99,106.73 C 50.68,108.17 54.68,108.17 59.03,107.82 C 67.35,107.45 82.20,99.85 82.20,85.37 C 82.58,68.74 69.16,56.42 49.62,55.33 L 49.62,55.33 Z"/><path d="M 161.87,87.91 L 161.87,87.91 C 164.40,94.41 170.91,86.43 172.00,85.37 C 172.72,83.90 173.82,83.56 174.53,83.90 C 175.63,84.28 173.44,88.62 172.00,91.50 L 162.25,112.13 C 160.06,116.48 159.00,118.29 157.19,118.29 C 155.71,118.29 154.65,116.82 152.84,113.23 C 148.49,104.91 119.92,43.04 108.35,19.88 C 101.48,6.16 96.41,4.34 92.82,3.25 C 89.91,2.87 87.38,2.87 85.22,2.87 C 83.79,2.87 82.69,2.53 82.69,1.43 C 82.69,0.34 84.51,0 91.01,0 C 97.51,0 110.55,0 124.98,0.34 C 127.89,0.71 130.05,0.71 130.05,1.43 C 130.05,2.53 129.33,2.87 127.52,2.87 C 126.46,3.25 125.36,4.68 126.08,6.50 L 160.44,84.66 L 161.87,87.91 Z"/><path d="M 220.49,50.68 L 220.49,50.68 L 221.59,50.68 C 227.41,45.24 252.85,22.45 257.95,17.38 C 263.05,12.32 267.02,8.69 267.02,6.16 C 267.02,4.34 266.30,3.25 264.49,2.91 C 263.05,2.53 262.29,2.53 262.29,1.43 C 262.29,0.34 263.05,0 265.20,0 C 268.83,0 278.66,0.71 283.76,0.71 C 289.20,0.71 299.03,0 304.47,0 C 306.29,0 307.76,0.34 307.76,1.43 C 307.76,2.53 306.67,2.91 304.85,2.91 C 302.28,2.91 297.94,3.62 294.65,4.34 C 288.83,6.50 283.04,9.41 275.03,15.91 C 269.59,20.63 243.40,43.08 237.24,48.86 C 243.77,55.74 277.94,87.98 284.86,93.39 C 292.83,99.93 300.85,106.80 310.63,110.05 C 316.11,111.87 319.74,112.25 321.94,112.25 C 322.99,112.25 324.09,112.59 324.09,113.31 C 324.09,114.40 323.37,114.78 319.74,114.78 L 304.10,114.78 C 298.65,114.78 295.74,114.78 291.74,114.78 C 282.29,113.68 277.22,110.43 269.59,104.61 C 261.58,98.83 227.41,63.72 223.40,59.37 L 221.59,57.18 L 220.49,57.18 L 220.49,70.94 C 220.49,84.69 220.49,97.02 221.25,103.55 C 221.59,107.52 223.06,111.15 227.41,111.49 C 229.94,111.87 233.95,112.25 236.48,112.25 C 237.95,112.25 238.67,112.59 238.67,113.31 C 238.67,114.40 237.24,114.78 235.42,114.78 C 225.22,114.78 213.95,114.40 209.61,114.40 C 205.22,114.40 194.34,114.78 187.04,114.78 C 184.89,114.78 183.42,114.40 183.42,113.31 C 183.42,112.59 184.17,112.25 186.33,112.25 C 189.24,112.25 191.43,111.87 192.86,111.49 C 196.53,111.15 197.59,107.52 198.34,103.18 C 199.06,97.02 199.06,84.69 199.06,70.94 L 199.06,44.18 C 199.06,20.97 199.06,16.66 198.68,11.94 C 198.34,6.87 196.87,4.34 191.05,3.25 C 189.61,2.91 186.33,2.91 183.79,2.91 C 181.98,2.91 180.88,2.53 180.88,1.43 C 180.88,0.34 182.32,0 184.89,0 C 194.34,0 205.22,0.71 209.61,0.71 C 213.95,0.71 225.22,0 231.42,0 C 233.95,0 235.04,0.34 235.04,1.43 C 235.04,2.53 233.95,2.91 232.51,2.91 C 230.70,2.91 229.60,2.91 227.41,3.25 C 222.68,3.96 221.25,6.50 220.87,11.94 C 220.49,16.66 220.49,20.97 220.49,44.18 L 220.49,50.68 Z"/></svg></div>
+    <div><h6>KONTAKT</h6>BVK<br>Obstgartenstrasse 21<br>8090 Zürich</div>
+    <div><h6>UNSER ANGEBOT</h6><a href="#">Vorsorge</a><a href="#">Hypotheken</a><a href="#">Immobilien</a></div>
+    <div><h6>RECHTLICHES</h6><a href="#">Impressum</a><a href="#">Datenschutzerklärung</a><a href="#">Nutzungsbedingungen</a><div style="margin-top:10px">© 2026 BVK</div></div>
+  </div>
+</footer>
+
+<div id="os-root"></div>
+
+<script>
+(function(){
+const ICON = {
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M16 7l3 3M14 9l2 2"/></svg>',
+  finger:'<svg viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 11v4c0 2-.6 3.6-1.6 5"/><path d="M8.5 9.5A3.5 3.5 0 0 1 15.5 11v3c0 2.4-.6 4.6-1.8 6.4"/><path d="M5.6 7.4A7 7 0 0 1 19 11v2.5"/><path d="M5 11.5c0 3-.3 4.6-1 6"/><path d="M18.9 16.5c-.2 1.3-.6 2.6-1.1 3.7"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="#b07f00" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5v.5" stroke-linecap="round"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+};
+const ACCOUNTS0 = {
+  'anton.test1@beispiel.ch':{name:'Anton Test1', police:'999999', passkey:true},
+  'maria.muster@beispiel.ch':{name:'Maria Muster', police:'999998', passkey:false}
+};
+let ACCOUNTS = JSON.parse(JSON.stringify(ACCOUNTS0));
+const S = {phase:'2027', mandatory:false, deeplink:false, hasPasskey:false, email:'', name:'', police:'', phone:'', step:'start'};
+function acct(){ return ACCOUNTS[(S.email||'').toLowerCase()]; }
+function useAcct(a){ S.name=a?a.name:''; S.police=a?a.police:''; S.hasPasskey=!!(a&&a.passkey); }
+const app = document.getElementById('app');
+const osRoot = document.getElementById('os-root');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function explain(title, items){
+  return '<div class="explain"><h5>HINTER DEN KULISSEN – '+title+'</h5><ul>'+items.map(i=>'<li>'+i+'</li>').join('')+'</ul></div>';
+}
+function steps(n, total, label){
+  let b=''; for(let i=1;i<=total;i++) b+='<span class="'+(i<=n?'on':'')+'"></span>';
+  return '<div class="steps" aria-hidden="true">'+b+'</div><div class="stepinfo">Schritt '+n+' von '+total+(label?' · '+label:'')+'</div>';
+}
+function field(id,label,opts){
+  opts=opts||{};
+  return '<div class="field" id="f-'+id+'"><label for="'+id+'">'+label+'</label><input id="'+id+'" '+(opts.type?'type="'+opts.type+'"':'type="text"')+' '+(opts.ph?'placeholder="'+opts.ph+'"':'')+' '+(opts.mode?'inputmode="'+opts.mode+'"':'')+' autocomplete="'+(opts.auto||'off')+'" value="'+esc(opts.value||'')+'">'+(opts.hint?'<div class="hint">'+opts.hint+'</div>':'')+'<div class="err" id="e-'+id+'">'+(opts.err||'Bitte ausfüllen.')+'</div></div>';
+}
+function check(id, re, msg){
+  const f=document.getElementById('f-'+id), inp=document.getElementById(id), e=document.getElementById('e-'+id);
+  const v=inp.value.trim();
+  const ok = re ? re.test(v) : v.length>0;
+  if(!ok){ if(msg) e.textContent = v ? msg : 'Bitte ausfüllen.'; f.classList.add('invalid'); inp.focus(); }
+  else f.classList.remove('invalid');
+  return ok ? v : null;
+}
+
+/* ---------- Bildschirme ---------- */
+const V = {};
+
+V.start = () => {
+  const p27 = S.phase==='2027';
+  document.getElementById('crumb').textContent='myBVK Login';
+  const notice = p27
+    ? '<div class="notice">'+ICON.info+'<p><strong style="font-weight:500">So melden Sie sich jetzt an:</strong> Geben Sie Ihre E-Mail-Adresse ein – wir zeigen Ihnen den passenden Weg. Haben Sie noch keinen Passkey, melden Sie sich <strong style="font-weight:500">ein letztes Mal mit SwissID</strong> an und richten direkt danach Ihren Passkey ein. SwissID wird für myBVK per 31. Dezember 2027 eingestellt.</p></div>'
+    : '<div class="notice">'+ICON.info+'<p><strong style="font-weight:500">Die Anmeldung mit SwissID ist nicht mehr möglich.</strong> Geben Sie Ihre E-Mail-Adresse ein. Haben Sie noch keinen Passkey, bestätigen Sie einmalig einen Code an Ihre E-Mail-Adresse und richten danach Ihren Passkey ein.</p></div>';
+  const loginBox = '<div class="loginbox"><h4>Einloggen</h4><p style="margin:0 0 14px">Mit welcher E-Mail-Adresse melden Sie sich bei myBVK an?</p>'
+    + '<div class="row-in">'+field('email','E-Mail-Adresse',{type:'email',value:S.email,ph:'name@beispiel.ch',auto:'username webauthn',err:'Bitte eine gültige E-Mail-Adresse eingeben.'})
+    + '<button class="btn btn-primary" id="loginGo">Weiter '+ICON.arrow+'</button></div>'
+    + '<div class="chips"><span>Demo:</span><button type="button" data-mail="anton.test1@beispiel.ch">anton.test1@beispiel.ch</button><button type="button" data-mail="maria.muster@beispiel.ch">maria.muster@beispiel.ch</button><button type="button" data-mail="neu.kunde@beispiel.ch">neu.kunde@beispiel.ch</button></div>'
+    + '<div class="actions" style="margin-top:14px"><button class="btn btn-link" data-go="recEmail">Neues Gerät oder Passkey verloren?</button></div></div>';
+  const regBox = '<div class="tcabox"><h4>Registrieren</h4><p>Neu bei myBVK? Für die einmalige Registrierung brauchen Sie Ihre Policennummer und Ihren persönlichen Aktivierungscode – oder Sie identifizieren sich online mit Ihrem Ausweis.</p><div class="tcabox__buttons"><button class="btn btn-primary" data-go="reg1">Jetzt registrieren</button><a class="btn btn-secondary" href="#" data-nolink>Zugangsdaten bestellen</a></div></div>';
+  const demoBox = '<div class="tcabox"><h4>Demoversion (ohne Registrierung)</h4><p>Testen Sie myBVK ohne Registrierung.</p><div class="tcabox__buttons"><a class="btn btn-primary" href="#" data-nolink>Zur Demoversion</a></div></div>';
+  const help = '<p class="help"><strong>Brauchen Sie Hilfe zum Login?</strong> Bei Fragen helfen wir gerne weiter. <a href="#" data-nolink>Häufige Fragen</a></p>';
+  const side = '<div class="side"><span class="badge">'+(p27?'Neu ab 2027':'Seit 2028')+'</span><h2>So funktioniert die <i class="acc">Anmeldung</i></h2>'
+    + '<ol class="howto">'
+    + '<li><span class="n">1</span><strong>E-Mail-Adresse eingeben</strong><span>Die Adresse, mit der Sie sich bisher bei myBVK angemeldet haben.</span></li>'
+    + (p27
+      ? '<li><span class="n">2</span><strong>Noch kein Passkey? Ein letztes Mal mit SwissID</strong><span>Nach der Anmeldung richten Sie Ihren Passkey ein – das dauert rund eine Minute.</span></li>'
+      : '<li><span class="n">2</span><strong>Noch kein Passkey? Einmalig per E-Mail-Code</strong><span>Dazu eine kurze Sicherheitsprüfung, danach richten Sie Ihren Passkey ein.</span></li>')
+    + '<li><span class="n">3</span><strong>Ab dann: nur noch mit Passkey</strong><span>Per Fingerabdruck, Gesichtserkennung oder Geräte-PIN – ohne Passwort.</span></li></ol>'
+    + '<h2>Was ist ein <i class="acc">Passkey?</i></h2><p>Ein Passkey ersetzt Benutzername und Passwort. Er ist sicher auf Ihrem Smartphone oder Computer gespeichert und funktioniert nur auf myBVK – Betrüger können ihn nicht abfangen.</p></div>';
+  const ex = explain(p27 ? 'LOGIN-SEITE (EIGENE LOGINAPP)' : 'LOGIN-SEITE AB 2028', [
+    'Eigene Loginapp im myBVK-Design, die über die REST API mit Airlock IAM spricht. Die Prüfungen macht weiterhin das IAM.',
+    'Zuerst nur die E-Mail-Adresse («Identifier first»). Das IAM prüft im Hintergrund: Konto mit Passkey? Konto ohne Passkey? Unbekannt? – und gibt den nächsten Schritt vor.',
+    'Hat das Gerät bereits einen Passkey, schlägt der Browser ihn direkt im E-Mail-Feld vor (Autofill). Dann entfällt sogar das Tippen.',
+    p27 ? 'SwissID ist nur noch ein Zwischenschritt für Konten ohne Passkey; die SwissID-Registrierung ist abgeschaltet.' : 'Der SwissID-Weg ist entfernt, die SwissID-Verknüpfungen sind gelöscht.',
+    S.deeplink ? 'Einstieg über Direktlink aktiv: Das IAM hat sich die Zieladresse (Meine Einkäufe) gemerkt.' : 'Ohne Direktlink geht es nach der Anmeldung auf die Startseite von myBVK.'
+  ]);
+  return '<h3 class="lead">Los geht’s. Melden Sie sich jetzt an!</h3>'+notice+'<div class="row"><div>'+loginBox+regBox+demoBox+help+ex+'</div>'+side+'</div>';
+};
+
+/* Ergebnis der Triage: Konto mit Passkey */
+V.pkKnown = () => {
+  setTimeout(()=>osDialog({
+    title:'Mit Passkey anmelden', text:'Wählen Sie den gespeicherten Passkey für mybvk.ch.', account:S.name, go:'Fortfahren',
+    onGo: ()=> go('portal',{flash:'Angemeldet mit Passkey.'}), onCancel: ()=>{}
+  }),80);
+  return card(
+    '<div class="whoami"><span>'+esc(S.email)+'</span><button type="button" data-go="start">Ändern</button></div>'
+    + '<h3>Willkommen zurück, <i class="acc">'+esc(S.name)+'</i></h3><p>Bestätigen Sie die Anmeldung mit Ihrem Passkey – per Fingerabdruck, Gesichtserkennung oder Geräte-PIN.</p>'
+    + '<div class="actions"><button class="btn btn-primary" data-go="pkKnown">'+ICON.key+'Mit Passkey anmelden</button></div>'
+    + '<div class="divider">Passkey nicht auf diesem Gerät?</div>'
+    + '<div class="paths"><div><strong>Mit dem Smartphone bestätigen</strong>Der Browser zeigt einen QR-Code. Scannen Sie ihn mit dem Smartphone, auf dem Ihr Passkey gespeichert ist.</div>'
+    + '<div><strong>Neues Gerät einrichten</strong>Mit einem Code per E-Mail und SMS richten Sie hier einen weiteren Passkey ein. <button class="btn btn-link" style="padding:4px 0" data-go="recEmail">Jetzt einrichten</button></div></div>',
+    explain('TRIAGE: KONTO MIT PASSKEY', ['Das IAM kennt die E-Mail-Adresse und findet beim Konto einen Passkey → nächster Schritt: Passkey-Abfrage im Browser.','Ist der Passkey auf einem anderen Gerät (z.B. Smartphone), bietet der Browser die Bestätigung per QR-Code an – das ist Standard bei Passkeys.']));
+};
+
+/* Ergebnis der Triage: Konto ohne Passkey (2027) */
+V.viaSwissid = () => card(
+  '<div class="whoami"><span>'+esc(S.email)+'</span><button type="button" data-go="start">Ändern</button></div>'
+  + steps(1,4,'Neuer Zugang')+'<h3>Ein letztes Mal mit <i class="acc">SwissID</i></h3>'
+  + '<p>Grüezi '+esc(S.name)+'. Für Ihr Konto ist noch kein Passkey eingerichtet. Melden Sie sich bitte <strong style="font-weight:500">ein letztes Mal mit SwissID</strong> an – wie bisher mit Passwort und Bestätigung.</p>'
+  + '<ul class="list"><li><span class="num">1</span><span>Mit SwissID anmelden</span></li><li><span class="num">2</span><span>Passkey auf diesem Gerät speichern</span></li><li><span class="num">3</span><span>Handynummer für den Notfall bestätigen</span></li><li><span class="num">4</span><span>Fertig – ab dann nur noch mit Passkey</span></li></ul>'
+  + '<div class="actions"><button class="btn btn-primary" data-go="swissid">Weiter zu SwissID '+ICON.arrow+'</button><button class="btn btn-link" data-go="start">Andere E-Mail-Adresse</button></div>'
+  + '<p class="later-note" style="margin-top:10px">SwissID-Passwort vergessen? Setzen Sie es auf der SwissID-Anmeldeseite zurück.</p>',
+  explain('TRIAGE: KONTO OHNE PASSKEY', ['Das IAM kennt die E-Mail-Adresse, beim Konto ist aber noch kein Passkey hinterlegt → nächster Schritt: SwissID.','Die E-Mail-Adresse kann an SwissID vorausgefüllt übergeben werden (falls SwissID das unterstützt, OIDC-Parameter login_hint).','Nach der Rückkehr folgt direkt die Einrichtung des Passkeys (Token-Migration).']));
+
+/* Ergebnis der Triage: E-Mail unbekannt */
+V.unknown = () => card(
+  '<div class="whoami"><span>'+esc(S.email)+'</span><button type="button" data-go="start">Ändern</button></div>'
+  + '<h3>Kein Zugang für diese <i class="acc">E-Mail-Adresse</i></h3>'
+  + '<p>Mit dieser E-Mail-Adresse konnten wir Sie nicht anmelden.</p>'
+  + '<div class="paths"><div><strong>Tippfehler?</strong>Prüfen Sie die Schreibweise oder versuchen Sie eine andere E-Mail-Adresse. <button class="btn btn-link" style="padding:4px 0" data-go="start">Andere E-Mail-Adresse</button></div>'
+  + '<div><strong>Noch nicht registriert?</strong>Registrieren Sie sich einmalig mit Policennummer und Aktivierungscode. <button class="btn btn-link" style="padding:4px 0" data-go="reg1">Jetzt registrieren</button></div>'
+  + '<div><strong>E-Mail-Adresse geändert?</strong>Unser Kundendienst hilft Ihnen gerne weiter.</div></div>',
+  explain('TRIAGE: UNBEKANNT', ['Das IAM findet kein Konto zur E-Mail-Adresse.','Achtung Datenschutz: Eine eindeutige Meldung verrät, ob eine Adresse bei der BVK registriert ist (Konto-Ausspähung). Gegenmassnahmen: Anzahl Versuche begrenzen, neutrale Formulierung, ggf. Captcha – mit Informationssicherheit festlegen.']));
+
+/* Nachzügler ab 2028: Code an bekannte Adresse */
+V.lateKnown = () => card(
+  '<div class="whoami"><span>'+esc(S.email)+'</span><button type="button" data-go="start">Ändern</button></div>'
+  + steps(1,4,'Zugang einrichten')+'<h3>Zugang <i class="acc">einrichten</i></h3><p>Grüezi '+esc(S.name)+'. Für Ihr Konto ist noch kein Passkey eingerichtet. Wir senden Ihnen einen Code an Ihre E-Mail-Adresse.</p>'
+  + '<div class="actions"><button class="btn btn-primary" id="lateSend">Code senden</button></div><div id="lateCodeArea"></div>',
+  explain('TRIAGE AB 2028', ['Konto bekannt, kein Passkey, SwissID nicht mehr verfügbar → E-Mail-Code an die hinterlegte Adresse, danach Zusatzprüfung und Passkey.']));
+
+/* SwissID-Weg (Übergang) */
+V.swissid = () => '<div class="row"><div><div class="ext"><div class="ext-tag">Externe Seite – Simulation des SwissID-Logins (vereinfacht)</div><h3 style="font-size:24px">Anmeldung bei SwissID</h3>'
+  + field('sid-mail','E-Mail-Adresse',{value:S.email,type:'email',hint:'Von myBVK vorausgefüllt.'})
+  + field('sid-pw','Passwort',{type:'password',value:'••••••••'})
+  + '<p class="demo">Danach folgt bei SwissID wie heute der zweite Faktor (Passkey oder SMS).</p>'
+  + '<div class="actions"><button class="btn btn-primary" id="sidGo">Anmelden</button><button class="btn btn-link" data-go="start">Abbrechen</button></div></div>'
+  + explain('SWISSID-LOGIN',['Weiterleitung an SwissID wie heute; SwissID prüft Passwort und zweiten Faktor im vom IAM verlangten Niveau.','Nach der Rückkehr ordnet das IAM die Person über den Account Link (SwissID-Hash) ihrem Konto zu – inkl. VersIntID.'])
+  + '</div><div class="side"><h2>Ein letztes Mal mit <i class="acc">SwissID</i></h2><p>Nach dieser Anmeldung richten Sie Ihren neuen Zugang ein. Danach brauchen Sie SwissID für myBVK nicht mehr.</p></div></div>';
+V.afterSwissid = () => S.hasPasskey ? 'portalHint' : 'mig1';
+
+V.mig1 = () => card(
+  steps(2,4,'Neuer Zugang')+'<h3>Richten Sie Ihren <i class="acc">neuen Zugang</i> ein</h3>'
+  + '<p>Danke, '+esc(S.name)+'. Die Anmeldung mit SwissID wird per 31. Dezember 2027 eingestellt. Richten Sie jetzt Ihren neuen Zugang zu myBVK ein:</p>'
+  + '<ul class="list"><li><span class="num">1</span><span>Passkey auf diesem Gerät speichern – Sie bestätigen mit Fingerabdruck, Gesicht oder PIN.</span></li><li><span class="num">2</span><span>Handynummer für den Notfall bestätigen.</span></li><li><span class="num">3</span><span>Fertig – Ihr Konto, Ihre Police und Ihre Daten bleiben unverändert.</span></li></ul>'
+  + '<div class="actions"><button class="btn btn-primary" data-go="migPk">Jetzt einrichten</button>'
+  + (S.mandatory ? '' : '<button class="btn btn-secondary" data-go="portal" data-flash="Sie können den neuen Zugang bei der nächsten Anmeldung einrichten.">Später</button>')
+  + '</div>' + (S.mandatory ? '<p class="later-note" style="margin-top:12px">Ab dem 1. Oktober 2027 ist die Einrichtung für die Anmeldung erforderlich.</p>' : '<p class="later-note" style="margin-top:12px">Die Einrichtung ist bis 30. September 2027 freiwillig.</p>'),
+  explain('UMSTELLUNG IM IAM', ['Das IAM prüft nach der SwissID-Rückkehr: Hat das Konto schon einen Passkey? Hier: nein → Token-Migration.', S.mandatory ? 'Welle 2 (zwingend): Ohne Einrichtung kein Zugang zum Portal (in der Praxis mit Karenzfrist).' : 'Welle 1 (freiwillig): «Später» leitet ins Portal; beim nächsten Login fragt das IAM erneut.','Portal, ESB, TYPO3 und PK/S sind an diesem Schritt nicht beteiligt.'])
+);
+V.migPk = () => { setTimeout(()=>createPasskey(()=>go('phone',{next:'migDone',n:3,total:4,label:'Neuer Zugang'})),50); return V.mig1(); };
+
+/* Handynummer + SMS (gemeinsam genutzt) */
+V.phone = (o) => card(
+  steps(o.n,o.total,o.label)+'<h3>Handynummer <i class="acc">für den Notfall</i></h3><p>Falls Sie Ihr Gerät verlieren, schicken wir Ihnen einen Code per SMS. So kommen Sie wieder in Ihr Konto.</p>'
+  + field('ph','Handynummer',{type:'tel',mode:'tel',ph:'+41 79 123 45 67',value:S.phone,err:'Bitte eine gültige Schweizer Handynummer eingeben, z.B. +41 79 123 45 67.'})
+  + '<div class="actions"><button class="btn btn-primary" id="phGo">Code senden</button></div>'
+  + '<div id="smsArea"></div>',
+  explain('NOTFALL-KANAL',['Der Passkey ist bereits gespeichert. Die Handynummer ist der zweite Wiederherstellungskanal neben der E-Mail-Adresse.','Heute liegt im IAM-Profil keine Handynummer; sie wird hier erstmals erfasst und per SMS-Code (mTAN) bestätigt.'])
+);
+V.migDone = () => card(
+  '<div class="ok-icon">'+ICON.check+'</div><h3>Ihr neuer Zugang ist <i class="acc">eingerichtet</i></h3>'
+  + '<p>Ab sofort geben Sie bei der Anmeldung nur Ihre E-Mail-Adresse ein und bestätigen mit dem Passkey – oder der Browser schlägt den Passkey direkt vor. SwissID brauchen Sie für myBVK nicht mehr.</p><p>Tipp: Möchten Sie myBVK auch auf einem anderen Gerät nutzen? Fügen Sie in den Einstellungen einen weiteren Passkey hinzu.</p>'
+  + '<div class="actions"><button class="btn btn-primary" data-go="portal" data-flash="Ihr neuer Zugang ist aktiv.">Weiter zu myBVK '+ICON.arrow+'</button></div>',
+  explain('GESPEICHERT IM IAM',['Beim Benutzer liegt neu ein Passkey (öffentlicher Schlüssel); der private Schlüssel bleibt auf dem Gerät.','Der SwissID-Link bleibt bis 31.12.2027 als Rückfallweg bestehen. Beim nächsten Mal wird nicht mehr nach der Umstellung gefragt.'])
+);
+V.portalHint = () => { return V.portal({flash:'Sie haben bereits einen Passkey. Künftig genügt Ihre E-Mail-Adresse und der Passkey.', info:true}); };
+
+/* Registrierung */
+V.reg1 = () => card(
+  steps(1,4,'Registrierung')+'<h3>Willkommen bei <i class="acc">myBVK</i></h3><p>Geben Sie Ihre Policennummer und den persönlichen Aktivierungscode aus Ihrem Brief ein.</p>'
+  + field('pol','Policennummer',{mode:'numeric',ph:'z.B. 999999',err:'Bitte eine gültige Policennummer eingeben (nur Ziffern).'})
+  + field('act','Aktivierungscode',{ph:'XXX-XXX-XXX-XXX-XXX',hint:'15 Zeichen in 5 Dreiergruppen, steht in Ihrem Brief.',err:'Der Code hat 15 Zeichen in 5 Gruppen, z.B. A7K-2PQ-9XM-4TB-H3R.'})
+  + '<p class="demo">Demo: beliebige Policennummer und einen Code im Format XXX-XXX-XXX-XXX-XXX eingeben.</p>'
+  + '<div class="actions"><button class="btn btn-primary" id="reg1Go">Weiter</button><button class="btn btn-link" data-go="start">Abbrechen</button></div>'
+  + '<div class="divider">oder</div><p style="margin-bottom:10px"><strong style="font-weight:500">Kein Brief zur Hand?</strong> Identifizieren Sie sich online mit Ihrem Ausweis und Smartphone.</p>'
+  + '<button class="btn btn-secondary" data-go="pxl">Mit Ausweis identifizieren</button>',
+  explain('REGISTRIERUNG NUR NOCH BEI DER BVK',['Prüfung von Policennummer (VersID) und Aktivierungscode wie heute über den ESB gegen PK/S (/Versicherte/Login).','Bei Erfolg schreibt der ESB die VersIntID ins IAM-Konto – unverändert gegenüber heute.','Alternative ohne Brief: Online-Identifikation mit PXL Ident.'])
+);
+V.pxl = () => card(
+  steps(1,4,'Registrierung')+'<h3>Mit Ausweis <i class="acc">identifizieren</i></h3><p>Sie fotografieren Ihren Ausweis und machen ein kurzes Selfie. Das dauert wenige Minuten.</p>'
+  + '<ul class="list"><li><span class="num">1</span><span>Ausweis (ID, Pass oder Ausländerausweis) fotografieren</span></li><li><span class="num">2</span><span>Kurzes Selfie-Video zur Echtheitsprüfung</span></li><li><span class="num">3</span><span>Automatischer Abgleich mit Ihren Daten bei der BVK</span></li></ul>'
+  + '<div class="actions"><button class="btn btn-primary" id="pxlGo">Identifikation starten</button><button class="btn btn-link" data-go="reg1">Zurück</button></div><div id="pxlArea"></div>',
+  explain('PXL IDENT',['Die Identifikation läuft beim Anbieter PXL Vision (Pilot bereits durchgeführt); das Ergebnis kommt per Webhook zurück.','Bei Übereinstimmung mit den Stammdaten aus PK/S gilt die Identität als geprüft – der Rest der Registrierung ist gleich.'])
+);
+V.reg2 = () => card(
+  steps(2,4,'Registrierung')+'<h3>E-Mail-Adresse <i class="acc">bestätigen</i></h3><p>Ihre E-Mail-Adresse ist Ihr Benutzername und dient zur Wiederherstellung Ihres Zugangs.</p>'
+  + field('rmail','E-Mail-Adresse',{type:'email',value:'',ph:'name@beispiel.ch',err:'Bitte eine gültige E-Mail-Adresse eingeben.'})
+  + '<div class="actions"><button class="btn btn-primary" id="rmailGo">Code senden</button></div><div id="mailCodeArea"></div>',
+  explain('E-MAIL',['Die E-Mail-Adresse wird per Einmal-Code (E-Mail-OTP) bestätigt und als Benutzername gespeichert.'])
+);
+V.reg3 = () => card(
+  steps(3,4,'Registrierung')+'<h3>Passkey <i class="acc">speichern</i></h3><p>Mit dem Passkey melden Sie sich künftig an – per Fingerabdruck, Gesichtserkennung oder Geräte-PIN. Er wird sicher auf diesem Gerät gespeichert.</p>'
+  + '<div class="actions"><button class="btn btn-primary" id="reg3Go">'+ICON.key+'Passkey erstellen</button></div>',
+  explain('PASSKEY ERSTELLEN',['Der Browser erzeugt ein Schlüsselpaar, gebunden an die Adresse mybvk.ch.','Das IAM speichert den öffentlichen Schlüssel beim neuen Konto.'])
+);
+V.regDone = () => card(
+  '<div class="ok-icon">'+ICON.check+'</div><h3>Registrierung <i class="acc">abgeschlossen</i></h3><p>Ihr Zugang zu myBVK ist bereit. Im nächsten Schritt legen Sie im Portal fest, wie wir mit Ihnen kommunizieren dürfen.</p>'
+  + '<div class="actions"><button class="btn btn-primary" data-go="portal" data-flash="Willkommen bei myBVK! Bitte legen Sie zuerst Ihre Kommunikationseinstellungen fest.">Weiter zu myBVK '+ICON.arrow+'</button></div>',
+  explain('NACH DER REGISTRIERUNG',['Wie heute: Der ESB setzt ein Standard-Set an Kommunikationseinstellungen im CRM; die Person bestätigt sie im Portal.'])
+);
+
+/* Gerät verloren / neues Gerät */
+V.recEmail = () => card(
+  steps(1,3,'Neues Gerät')+'<h3>Zugang auf neuem Gerät <i class="acc">einrichten</i></h3><p>Wir senden Ihnen einen Code an Ihre E-Mail-Adresse und einen zweiten Code per SMS. Danach speichern Sie einen neuen Passkey.</p>'
+  + field('remail','E-Mail-Adresse',{type:'email',value:S.email,ph:'name@beispiel.ch',err:'Bitte eine gültige E-Mail-Adresse eingeben.'})
+  + '<div class="actions"><button class="btn btn-primary" id="remailGo">Code senden</button><button class="btn btn-link" data-go="start">Abbrechen</button></div><div id="recCodeArea"></div>',
+  explain('WIEDERHERSTELLUNG',['Zwei unabhängige Kanäle: Code an die E-Mail-Adresse und Code per SMS an die hinterlegte Handynummer.','Wer keinen Zugriff mehr hat: PXL Ident oder neuer Aktivierungsbrief über den Kundendienst.','Synced Passkeys (iCloud, Google) wandern oft automatisch aufs neue Gerät – dann ist dieser Weg gar nicht nötig.'])
+);
+V.recSms = () => card(
+  steps(2,3,'Neues Gerät')+'<h3>Code per <i class="acc">SMS</i></h3><p>Wir haben einen Code an Ihre Handynummer +41 79 *** ** 67 gesendet.</p>'
+  + field('rsms','SMS-Code',{mode:'numeric',ph:'6 Ziffern',err:'Der Code besteht aus 6 Ziffern.'})
+  + '<p class="demo">Demo: beliebige 6 Ziffern, z.B. 123456.</p>'
+  + '<div class="actions"><button class="btn btn-primary" id="rsmsGo">Bestätigen</button></div>',
+  explain('ZWEITER FAKTOR',['Erst beide Codes zusammen erlauben das Hinzufügen eines neuen Passkeys. Der verlorene Passkey kann in den Einstellungen oder vom Kundendienst gesperrt werden.'])
+);
+V.recPk = () => card(
+  steps(3,3,'Neues Gerät')+'<h3>Neuen Passkey <i class="acc">speichern</i></h3><p>Speichern Sie jetzt einen Passkey auf diesem Gerät.</p><div class="actions"><button class="btn btn-primary" id="recPkGo">'+ICON.key+'Passkey erstellen</button></div>',
+  explain('NEUER PASSKEY',['Das IAM fügt dem bestehenden Konto einen weiteren Passkey hinzu; Konto, VersIntID und Daten bleiben gleich.'])
+);
+
+/* Nachzügler ab 2028 */
+V.lateEmail = () => card(
+  steps(1,4,'Zugang einrichten')+'<h3>Anmelden mit <i class="acc">E-Mail-Code</i></h3><p>Geben Sie die E-Mail-Adresse ein, mit der Sie sich bisher bei myBVK angemeldet haben.</p>'
+  + field('lmail','E-Mail-Adresse',{type:'email',value:S.email,ph:'name@beispiel.ch',err:'Bitte eine gültige E-Mail-Adresse eingeben.'})
+  + '<div class="actions"><button class="btn btn-primary" id="lmailGo">Code senden</button><button class="btn btn-link" data-go="start">Abbrechen</button></div><div id="lateCodeArea"></div>',
+  explain('NACHZÜGLER',['Personen, die sich 2027 nie angemeldet haben, haben keinen Passkey – aber die E-Mail-Adresse ist bei allen Konten als Benutzername hinterlegt.'])
+);
+V.lateCheck = () => card(
+  steps(2,4,'Zugang einrichten')+'<h3>Zur <i class="acc">Sicherheit</i></h3><p>Bitte bestätigen Sie zusätzlich Ihre Angaben.</p>'
+  + field('lbirth','Geburtsdatum',{ph:'TT.MM.JJJJ',err:'Bitte im Format TT.MM.JJJJ eingeben.'})
+  + field('lpol','Policennummer',{mode:'numeric',ph:'z.B. 999999',err:'Bitte eine gültige Policennummer eingeben (nur Ziffern).'})
+  + '<div class="actions"><button class="btn btn-primary" id="lcheckGo">Weiter</button></div>'
+  + '<div class="divider">oder</div><button class="btn btn-secondary" data-go="pxl">Mit Ausweis identifizieren</button>',
+  explain('ZUSATZPRÜFUNG',['E-Mail allein ist ein schwacher Faktor. Darum zusätzlich Abgleich mit Stammdaten aus PK/S – oder Online-Identifikation mit PXL Ident.','Danach Passkey und Handynummer wie bei der Umstellung.'])
+);
+V.latePk = () => card(
+  steps(3,4,'Zugang einrichten')+'<h3>Passkey <i class="acc">speichern</i></h3><p>Mit dem Passkey melden Sie sich künftig an.</p><div class="actions"><button class="btn btn-primary" id="latePkGo">'+ICON.key+'Passkey erstellen</button></div>',
+  explain('PASSKEY',['Gleicher Schritt wie bei der Umstellung – das IAM speichert den öffentlichen Schlüssel beim bestehenden Konto.'])
+);
+
+/* Portal (vereinfacht) */
+V.portal = (o) => {
+  o=o||{};
+  const fl = o.flash ? '<div class="flash'+(o.info?' info':'')+'">'+(o.info?ICON.info:ICON.check)+'<span>'+esc(o.flash)+'</span></div>' : '';
+  document.getElementById('crumb').textContent='myBVK-Portal (vereinfachte Darstellung)';
+  if(S.deeplink){
+    return fl+'<div class="flash info">'+ICON.arrow+'<span>Sie wurden über Ihren Link direkt zu «Meine Einkäufe» geführt.</span></div>'
+      + '<div class="portal-head"><h2>Meine <i>Einkäufe</i></h2><div class="meta">'+esc(S.name)+' · <i>Police Nr.</i> '+esc(S.police)+'</div></div>'
+      + '<p>Mit einem Einkauf schliessen Sie Lücken in Ihrer Vorsorge und sparen Steuern.</p><div>Ihr Einkaufspotenzial</div><div class="value">CHF 647\'844</div>'
+      + '<div class="actions"><button class="btn btn-secondary" data-go="logout">Abmelden</button></div>'
+      + explain('DIREKTLINK',['Der Link (z.B. im Vorsorgeausweis) zeigte auf /aktiv/meine-einkaeufe. Das IAM hat die Adresse vor dem Login gemerkt und danach dorthin geleitet.','Nur festgelegte BVK-Adressen sind als Ziel erlaubt.']);
+  }
+  return fl+'<div class="portal-head"><h2>Grüezi <i>'+esc(S.name)+'</i></h2><div class="meta"><i>Police Nr.</i> '+esc(S.police)+'</div></div>'
+    + '<div class="tiles">'+['Mein Sparguthaben','Meine Rente','Meine Beitragsvariante','Meine Einkäufe'].map(t=>'<div class="tile"><div class="ico">Kachel</div><h4>'+t+'</h4></div>').join('')+'</div>'
+    + '<div class="actions" style="margin-top:26px"><button class="btn btn-secondary" data-go="logout">Abmelden</button></div>'
+    + explain('PORTAL',['Unverändert gegenüber heute: Das IAM übergibt die VersIntID, TYPO3 nutzt den Standardaccount, der ESB lädt die PK/S-Pakete.']);
+};
+V.logout = () => { return card('<h3>Sie wurden <i class="acc">abgemeldet</i></h3><p>Vielen Dank für Ihren Besuch.</p><div class="actions"><button class="btn btn-primary" data-go="start">Erneut anmelden</button></div>',
+  explain('ERNEUTE ANMELDUNG', [S.hasPasskey ? 'Diese Person hat jetzt einen Passkey: Nach Eingabe der E-Mail-Adresse erkennt das IAM das und fragt direkt den Passkey ab – keine erneute Umstellung.' : 'Ohne Passkey fragt das IAM bei der nächsten SwissID-Anmeldung erneut nach der Umstellung.'])); };
+
+function card(inner, ex){ return '<div class="row"><div><div class="card">'+inner+'</div>'+(ex||'')+'</div><div class="side">'+sideFor()+'</div></div>'; }
+function sideFor(){
+  return '<h2>Fragen zum <i class="acc">neuen Zugang?</i></h2><p>Ein Passkey ersetzt Benutzername und Passwort. Er ist auf Ihrem Gerät gespeichert und funktioniert nur auf myBVK.</p><p>Ihr Konto, Ihre Police und Ihre Daten bleiben unverändert.</p><p class="help"><strong>Brauchen Sie Hilfe?</strong> Unser Kundendienst hilft Ihnen gerne weiter. <a href="#" data-nolink>Häufige Fragen</a></p>';
+}
+
+/* ---------- Systemdialoge (Simulation) ---------- */
+function osDialog(o){
+  osRoot.innerHTML = '<div class="os-backdrop" role="dialog" aria-modal="true" aria-labelledby="osT"><div class="os"><div class="os-tag">Systemdialog des Geräts (Simulation)</div><div class="fp">'+ICON.finger+'</div><h6 id="osT">'+o.title+'</h6><p>'+o.text+'</p>'
+    + (o.account ? '<div class="acct">'+esc(o.account)+'<small>Passkey für mybvk.ch</small></div>' : '')
+    + '<div class="os-actions"><button type="button" id="osC">Abbrechen</button><button type="button" class="go" id="osG">'+o.go+'</button></div></div></div>';
+  const box = osRoot.querySelector('.os');
+  document.getElementById('osG').focus();
+  document.getElementById('osC').onclick = ()=>{ osRoot.innerHTML=''; o.onCancel && o.onCancel(); };
+  document.getElementById('osG').onclick = ()=>{
+    box.classList.add('working'); box.querySelector('p').textContent='Fingerabdruck, Gesicht oder PIN bestätigen …';
+    box.querySelectorAll('button').forEach(b=>b.disabled=true);
+    setTimeout(()=>{ osRoot.innerHTML=''; o.onGo(); }, 1100);
+  };
+}
+function createPasskey(after){
+  osDialog({title:'Passkey für mybvk.ch speichern?', text:'Der Passkey wird im Passwort-Manager dieses Geräts gespeichert. Sie entsperren ihn mit Fingerabdruck, Gesicht oder PIN.', account:(S.name||S.email), go:'Speichern',
+    onGo:()=>{ S.hasPasskey=true; const a=acct(); if(a) a.passkey=true; else if(S.email) ACCOUNTS[S.email.toLowerCase()]={name:S.name||'Neue Person',police:S.police||'—',passkey:true}; after(); }, onCancel:()=>{} });
+}
+
+/* ---------- Navigation ---------- */
+let cur = {step:'start', opts:{}}; let prev='start'; let pxlFrom='reg1';
+function go(step, opts){
+  prev = cur.step;
+  cur = {step, opts:opts||{}};
+  if(step!=='portal' && step!=='logout') document.getElementById('crumb').textContent = step==='start' ? 'myBVK Login' : 'myBVK Login · Airlock IAM';
+  if(step==='afterSwissid') step = cur.step = V.afterSwissid();
+  app.innerHTML = V[step](cur.opts);
+  bind(step);
+  window.scrollTo({top:0});
+}
+function codeArea(areaId, inputId, btnLabel, onOk, sentTo){
+  const a=document.getElementById(areaId);
+  a.innerHTML = '<p style="margin-top:18px">Wir haben einen 6-stelligen Code an <strong style="font-weight:500">'+esc(sentTo)+'</strong> gesendet.</p>'
+    + field(inputId,'Code',{mode:'numeric',ph:'6 Ziffern',err:'Der Code besteht aus 6 Ziffern.'})
+    + '<p class="demo">Demo: beliebige 6 Ziffern, z.B. 123456.</p><div class="actions"><button class="btn btn-primary" id="'+inputId+'Go">'+btnLabel+'</button></div>';
+  document.getElementById(inputId).focus();
+  document.getElementById(inputId+'Go').onclick = ()=>{ if(check(inputId,/^\d{6}$/,'Der Code besteht aus 6 Ziffern.')) onOk(); };
+}
+const EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function bind(step){
+  app.querySelectorAll('[data-go]').forEach(b=>b.onclick=(e)=>{ e.preventDefault(); const f=b.getAttribute('data-flash'); go(b.getAttribute('data-go'), f?{flash:f}:{}); });
+  app.querySelectorAll('[data-nolink]').forEach(a=>a.onclick=e=>e.preventDefault());
+  const on=(id,fn)=>{const el=document.getElementById(id); if(el) el.onclick=fn;};
+  app.querySelectorAll('[data-mail]').forEach(b=>b.onclick=()=>{ const i=document.getElementById('email'); i.value=b.getAttribute('data-mail'); i.closest('.field').classList.remove('invalid'); i.focus(); });
+  const emailInp=document.getElementById('email'); if(emailInp) emailInp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('loginGo').click(); } });
+  on('loginGo', ()=>{
+    const v=check('email',EMAIL,'Bitte eine gültige E-Mail-Adresse eingeben.'); if(!v) return;
+    S.email=v.trim(); const a=acct(); useAcct(a);
+    const b=document.getElementById('loginGo'); b.classList.add('busy'); b.innerHTML='Einen Moment …';
+    setTimeout(()=>{ if(!a) go('unknown'); else if(a.passkey) go('pkKnown'); else go(S.phase==='2027'?'viaSwissid':'lateKnown'); }, 700);
+  });
+  on('lateSend', ()=>codeArea('lateCodeArea','lcode','Weiter',()=>go('lateCheck'), S.email));
+  on('sidGo', ()=>{ if(check('sid-mail',EMAIL,'Bitte eine gültige E-Mail-Adresse eingeben.')) go('afterSwissid'); });
+  on('phGo', ()=>{ const v=check('ph',/^(\+41|0041|0)\s?7[5-9](\s?\d){7}$/,'Bitte eine gültige Schweizer Handynummer eingeben, z.B. +41 79 123 45 67.'); if(!v) return; S.phone=v;
+    codeArea('smsArea','sms','Bestätigen',()=>go(cur.opts.next), v); });
+  on('reg1Go', ()=>{ const p=check('pol',/^\d{4,10}$/,'Bitte eine gültige Policennummer eingeben (nur Ziffern).'); const a=check('act',/^[A-Za-z0-9]{3}(-?[A-Za-z0-9]{3}){4}$/,'Der Code hat 15 Zeichen in 5 Gruppen, z.B. A7K-2PQ-9XM-4TB-H3R.'); if(p&&a){ S.hasPasskey=false; S.name='Neue Person'; S.police=p; go('reg2'); } });
+  if(step==='pxl') pxlFrom=prev;
+  on('pxlGo', ()=>{ const a=document.getElementById('pxlArea'); a.innerHTML='<p class="demo" style="margin-top:14px">Identifikation läuft … (Simulation)</p>'; setTimeout(()=>{ a.innerHTML='<div class="flash" style="margin-top:14px">'+ICON.check+'<span>Identität bestätigt und mit Ihren Daten bei der BVK abgeglichen.</span></div><div class="actions"><button class="btn btn-primary" id="pxlNext">Weiter</button></div>'; document.getElementById('pxlNext').onclick=()=>go(pxlFrom==='lateCheck' ? 'latePk' : 'reg2'); },1400); });
+  on('rmailGo', ()=>{ const v=check('rmail',EMAIL,'Bitte eine gültige E-Mail-Adresse eingeben.'); if(v) codeArea('mailCodeArea','mcode','Bestätigen',()=>{S.email=v; if(!S.name) S.name='Neue Person'; go('reg3');}, v); });
+  on('reg3Go', ()=>createPasskey(()=>go('phone',{next:'regDone',n:4,total:4,label:'Registrierung'})));
+  on('remailGo', ()=>{ const v=check('remail',EMAIL,'Bitte eine gültige E-Mail-Adresse eingeben.'); if(v){ S.email=v; useAcct(acct()); if(!S.name) S.name=v; } if(v) codeArea('recCodeArea','rcode','Weiter',()=>go('recSms'), v); });
+  on('rsmsGo', ()=>{ if(check('rsms',/^\d{6}$/,'Der Code besteht aus 6 Ziffern.')) go('recPk'); });
+  on('recPkGo', ()=>createPasskey(()=>go('portal',{flash:'Neuer Passkey gespeichert – Sie sind angemeldet.'})));
+  on('lmailGo', ()=>{ const v=check('lmail',EMAIL,'Bitte eine gültige E-Mail-Adresse eingeben.'); if(v) codeArea('lateCodeArea','lcode','Weiter',()=>go('lateCheck'), v); });
+  on('lcheckGo', ()=>{ const b=check('lbirth',/^\d{2}\.\d{2}\.\d{4}$/,'Bitte im Format TT.MM.JJJJ eingeben.'); const p=check('lpol',/^\d{4,10}$/,'Bitte eine gültige Policennummer eingeben (nur Ziffern).'); if(b&&p) go('latePk'); });
+  on('latePkGo', ()=>createPasskey(()=>go('phone',{next:'migDone',n:4,total:4,label:'Zugang einrichten'})));
+  app.querySelectorAll('.field input').forEach(i=>i.addEventListener('input',()=>i.closest('.field').classList.remove('invalid')));
+}
+
+/* ---------- Prototyp-Steuerung ---------- */
+function setPressed(attr,val){ document.querySelectorAll('['+attr+']').forEach(b=>b.setAttribute('aria-pressed', b.getAttribute(attr)===val?'true':'false')); }
+function applyScenario(){ go('start'); }
+document.querySelectorAll('[data-phase]').forEach(b=>b.onclick=()=>{ S.phase=b.getAttribute('data-phase'); setPressed('data-phase',S.phase); applyScenario(); });
+document.getElementById('resetDemo').onclick=()=>{ ACCOUNTS=JSON.parse(JSON.stringify(ACCOUNTS0)); S.email=''; useAcct(null); go('start'); };
+document.getElementById('optMandatory').onchange=e=>{ S.mandatory=e.target.checked; if(cur.step==='mig1'||cur.step==='start') go(cur.step); };
+document.getElementById('optDeeplink').onchange=e=>{ S.deeplink=e.target.checked; go(cur.step==='portal'?'portal':cur.step, cur.opts); };
+document.getElementById('optExplain').onchange=e=>{ document.body.classList.toggle('hide-explain', !e.target.checked); };
+document.getElementById('homeLink').onclick=e=>{ e.preventDefault(); go('start'); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && osRoot.innerHTML){ osRoot.innerHTML=''; } });
+applyScenario();
+})();
+</script>
+</body>
+</html>
